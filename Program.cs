@@ -12,23 +12,14 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
-// Configuración de CORS para aceptar peticiones desde el frontend (ahora que estarán separados en Vercel y Render).
-var spaOrigin = builder.Configuration["Cors:SpaOrigin"]
-    ?? Environment.GetEnvironmentVariable("CORS_ORIGIN") // Para ponerlo en Render
-    ?? "*"; // Permitir todo temporalmente si no se configura, aunque es mejor configurarlo en Render
-
+// Configuración de CORS más flexible y robusta para evitar errores de preflight desde Vercel
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        if (spaOrigin == "*")
-        {
-            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-        }
-        else
-        {
-            policy.WithOrigins(spaOrigin).AllowAnyHeader().AllowAnyMethod();
-        }
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
