@@ -34,6 +34,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Aplica migraciones automáticamente al arrancar (crea las tablas en Supabase si no existen)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
