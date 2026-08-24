@@ -40,13 +40,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// En desarrollo el flujo vive en http (SpaProxy redirige a Vite en http://localhost:5173,
-// y VITE_API_BASE_URL apunta a http://localhost:5133). Forzar https aquí rompería ese fetch
-// con un redirect cross-origin a un certificado de desarrollo no confiado.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+// Render maneja HTTPS externamente, no se fuerza redirección aquí.
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -57,6 +51,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapFallbackToFile("index.html");
+
 
 app.Run();
