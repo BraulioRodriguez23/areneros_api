@@ -1,0 +1,6 @@
+@Areneros.Api_HostAddress = http://localhost:5133
+
+GET {{Areneros.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
