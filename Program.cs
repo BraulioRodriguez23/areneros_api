@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 // Configuración de CORS para aceptar peticiones desde el frontend (ahora que estarán separados en Vercel y Render).
 var spaOrigin = builder.Configuration["Cors:SpaOrigin"]
