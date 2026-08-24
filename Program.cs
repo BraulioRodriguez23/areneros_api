@@ -12,21 +12,25 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-// El SpaProxy redirige la navegación inicial al dev server de Vite para tener HMR completo;
-// ahí el fetch a la API queda cross-origin, de ahí el CORS (solo hace falta en desarrollo).
-if (builder.Environment.IsDevelopment())
-{
-    var spaOrigin = builder.Configuration["Cors:SpaOrigin"]
-        ?? throw new InvalidOperationException("Falta configurar Cors:SpaOrigin en appsettings.Development.json.");
+// Configuración de CORS para aceptar peticiones desde el frontend (ahora que estarán separados en Vercel y Render).
+var spaOrigin = builder.Configuration["Cors:SpaOrigin"]
+    ?? Environment.GetEnvironmentVariable("CORS_ORIGIN") // Para ponerlo en Render
+    ?? "*"; // Permitir todo temporalmente si no se configura, aunque es mejor configurarlo en Render
 
-    builder.Services.AddCors(options =>
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
     {
-        options.AddDefaultPolicy(policy =>
-            policy.WithOrigins(spaOrigin)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod());
+        if (spaOrigin == "*")
+        {
+            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        }
+        else
+        {
+            policy.WithOrigins(spaOrigin).AllowAnyHeader().AllowAnyMethod();
+        }
     });
-}
+});
 
 var app = builder.Build();
 
@@ -47,10 +51,7 @@ if (!app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseCors();
-}
+app.UseCors();
 
 app.UseAuthorization();
 
